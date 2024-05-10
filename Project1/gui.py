@@ -8,16 +8,16 @@ class Gui:
     '''
     Class to represent Tkinter Graphical User Interface
     '''
-    def __init__(self, window):
+    def __init__(self, window) -> None:
         '''
         Window constructor to initialize GUI
-        :param window: initializes the window
+        :param window: creates an instance of the Tkinter window
         '''
         # Window
         self.window = window
-        self.candidates = {}
-        self.voter_ids = {}
-        self.choice = StringVar()
+        self.candidates: dict = {}
+        self.voter_ids: dict = {}
+        self.choice: str = StringVar()
 
         # Label and button to add candidate for voting
         self.label_add_candidate = Label(self.window, text="Add Candidate:")
@@ -31,7 +31,7 @@ class Gui:
         self.button_start_voting = Button(self.window, text="Start Voting", command=self.start_voting, state=DISABLED)
         self.button_start_voting.pack(pady=10)
 
-    def add_candidate(self):
+    def add_candidate(self) -> None:
         '''
         Adds candidate names entered by the user to a list for voting
         '''
@@ -47,7 +47,7 @@ class Gui:
         elif not candidate.isalpha():
             messagebox.showwarning(title="Enter a candidate.", message= "Your candidate's name should only contain letters.")
 
-    def start_voting(self):
+    def start_voting(self) -> None:
         '''
         Sets up the screen for user to start voting by removing previous Tkinter elements and adding new Tkinter elements
         '''
@@ -69,8 +69,8 @@ class Gui:
         self.button_submit_vote = Button(self.window, text="Submit Vote", command=self.update_votes)
         self.button_submit_vote.pack(pady=10)
 
-        width = 300
-        height = 260
+        width: int = 300
+        height: int = 260
         self.window.geometry('{}x{}'.format(width,height))
 
         # Vote buttons
@@ -87,7 +87,7 @@ class Gui:
         self.button_end_voting.pack(pady=10)
         
         # Creates a button for the user to restart the program with a new list of candidates
-        self.button_restart_program = Button(self.window, text="Restart", command=self.restart_program)
+        self.button_restart_program = Button(self.window, text="Restart", command=self.restart_program, state=DISABLED)
         self.button_restart_program.pack(pady=10)
 
         # Removes previous Tkinter elements
@@ -97,13 +97,13 @@ class Gui:
         self.button_start_voting.pack_forget()
 
         # Fill in total and individual votes label with each value is 0
-        votetext = ""
+        votetext: str = ""
         for i in self.candidates:
             votetext += "{} - 0, ".format(i)
         votetext += "Total - 0"
         self.label_total_votes.config(text=votetext)
 
-    def update_votes(self):
+    def update_votes(self) -> None:
         '''
         Updates a label to display the current individual and total vote counts
         '''
@@ -137,7 +137,7 @@ class Gui:
         # After updating votes, write to csv
         self.write_to_csv()
 
-    def write_to_csv(self):
+    def write_to_csv(self) -> None:
         '''
         Now write voter ID and candidate voted for to a csv file
         '''
@@ -147,38 +147,43 @@ class Gui:
             for voter_id, candidate in self.voter_ids.items():
                 writer.writerow([voter_id, candidate])
 
-    def set_candidates(self, candidates):
+    def set_candidates(self, candidates) -> None:
         '''
-        Sets the candidates list
+        Method to modify candidate list
+        :param candidates: list of candidates
         '''
         self.candidates = candidates
 
-    def get_candidates(self):
+    def get_candidates(self) -> list:
         '''
-        Returns the candidates list
+        Method to access candidate list
+        :return: candidate list
         '''
         return self.candidates
 
-    def end_voting(self):
+    def end_voting(self) -> None:
         '''
         Displays the winning candidate in a messagebox
         '''
         # Finds the winning candidate(s)
-        max_votes = max(self.candidates.values())
-        winners = []
-        for candidate in self.candidates():
+        max_votes: int = max(self.candidates.values())
+        winners: list = []
+        for candidate in self.candidates.keys():
             if self.candidates[candidate] == max_votes:
                 winners.append(candidate)
         
         # Displays the winners in a messagebox
         if len(winners) == 1:
-            winner_message = "The winner is: {}".format(winners[0])
+            winner_message = "The winner is: {}. This candidate has {} votes.".format(winners[0],max_votes)
         else:
-            winner_message = "There is a tie between: {}".format(", ".join(winners))
+            winner_message = "There is a tie between: {}. Each candidate has {} votes.".format(", ".join(winners), max_votes)
         
         messagebox.showinfo("Winner", winner_message)
+        
+        # Enables button to end voting after the winner is decided
+        self.button_restart_program.config(state=NORMAL)
 
-    def restart_program(self):
+    def restart_program(self) -> None:
         '''
         Restarts the program for the user to start voting again with new candidates
         '''
